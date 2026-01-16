@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionPlant - Reconocimiento de Plantas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px;
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f8f7ff;
+        }
+
+        .upload-area.drag-over {
+            border-color: #764ba2;
+            background: #f0edff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-area .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .results-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-section.hidden {
+            display: none;
+        }
+
+        .image-preview {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .result-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .result-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .result-percentage {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .main-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .main-result .result-label {
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .confidence-large {
+            font-size: 2em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .certainty-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .footer {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+
+        .top3-predictions {
+            margin-top: 20px;
+        }
+
+        .top3-predictions .title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .top3-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9em;
+            border-bottom: 1px solid #eee;
+        }
+
+        .top3-item:last-child {
+            border-bottom: none;
+        }
+
+        .top3-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .top3-score {
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 VisionPlant</h1>
+            <p>Reconocimiento de plantas con IA avanzada</p>
+        </div>
+
+        <div class="upload-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Cargar Imagen</h2>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <p>Arrastra tu imagen aquí o <span class="highlight">haz clic para seleccionar</span></p>
+                <small style="color: #999;">PNG, JPG, GIF, WebP - Máximo 10MB</small>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <button class="btn btn-primary" id="analyzeBtn" disabled>
+                Analizar Imagen
+            </button>
+            <button class="btn btn-secondary" id="clearBtn" style="display: none;">
+                Limpiar
+            </button>
+
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="results-section hidden" id="resultsSection">
+            <h2 style="margin-bottom: 20px; color: #333;">Resultados</h2>
+            
+            <img id="resultImage" class="image-preview">
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analizando imagen...</p>
+            </div>
+
+            <div id="resultContent" style="display: none;">
+                <div class="main-result">
+                    <div class="result-label">Clasificación Principal</div>
+                    <div class="result-label" id="mainLabel" style="color: white; font-size: 1.5em;"></div>
+                    <div class="confidence-large" id="mainConfidence"></div>
+                    <div class="certainty-badge">
+                        <span id="certaintyLabel"></span>
+                    </div>
+                </div>
+
+                <div class="top3-predictions">
+                    <div class="title">Top 3 Predicciones</div>
+                    <div id="top3Container"></div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Confianza</div>
+                        <div class="stat-value" id="statConfidence"></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Certeza</div>
+                        <div class="stat-value" id="statCertainty"></div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" style="margin-top: 20px;" id="newImageBtn">
+                    ➕ Analizar Otra Imagen
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>VisionPlant v1.0 | Powered by Advanced AI</p>
+            <p style="font-size: 0.8em; margin-top: 8px;">© 2026 VisionPlant. Todos los derechos reservados.</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+        const resultContent = document.getElementById('resultContent');
+        const error = document.getElementById('error');
+        let selectedFile = null;
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            // Validar tamaño
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Archivo demasiado grande (máximo 10MB)');
+                return;
+            }
+
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                showError('Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
+            selectedFile = file;
+            error.classList.remove('show');
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('resultImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            analyzeBtn.disabled = false;
+            resultsSection.classList.remove('hidden');
+            resultContent.style.display = 'none';
+            clearBtn.style.display = 'block';
+            uploadArea.style.opacity = '0.5';
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            analyzeBtn.disabled = true;
+            loading.classList.add('show');
+            resultContent.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/api/v1/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Error en el análisis');
+                }
+
+                const result = await response.json();
+                displayResults(result);
+                loading.classList.remove('show');
+                resultContent.style.display = 'block';
+            } catch (err) {
+                showError(err.message);
+                loading.classList.remove('show');
+            } finally {
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function displayResults(result) {
+            // Resultado principal
+            document.getElementById('mainLabel').textContent = result.label.toUpperCase();
+            document.getElementById('mainConfidence').textContent = 
+                (result.confidence * 100).toFixed(1) + '%';
+            document.getElementById('certaintyLabel').textContent = 
+                `Certeza: ${(result.certainty * 100).toFixed(1)}%`;
+
+            // Estadísticas
+            document.getElementById('statConfidence').textContent = 
+                (result.confidence * 100).toFixed(1) + '%';
+            document.getElementById('statCertainty').textContent = 
+                (result.certainty * 100).toFixed(1) + '%';
+
+            // Top 3
+            const top3Container = document.getElementById('top3Container');
+            top3Container.innerHTML = result.top_3_predictions
+                .map((pred, idx) => `
+                    <div class="top3-item">
+                        <span class="top3-name">${idx + 1}. ${pred.label}</span>
+                        <span class="top3-score">${(pred.probability * 100).toFixed(1)}%</span>
+                    </div>
+                `).join('');
+        }
+
+        function showError(msg) {
+            error.textContent = msg;
+            error.classList.add('show');
+        }
+
+        clearBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            analyzeBtn.disabled = true;
+            clearBtn.style.display = 'none';
+            resultsSection.classList.add('hidden');
+            uploadArea.style.opacity = '1';
+            error.classList.remove('show');
+        });
+
+        document.getElementById('newImageBtn').addEventListener('click', clearBtn.click);
+    </script>
+</body>
+</html>

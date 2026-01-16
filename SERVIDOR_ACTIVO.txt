@@ -1,0 +1,66 @@
+
+╔════════════════════════════════════════════════════════════════════╗
+║          PHYTOLENS IA - SERVIDOR DESPLEGADO EXITOSAMENTE         ║
+╚════════════════════════════════════════════════════════════════════╝
+
+✓ SERVIDOR EN LINEA
+  Puerto: 8001
+  Host: 127.0.0.1 (localhost)
+  URL: http://127.0.0.1:8001
+
+✓ ENDPOINTS DISPONIBLES
+
+  SALUD:
+    GET  http://127.0.0.1:8001/health
+         Verificar estado del servidor
+
+  INICIO:
+    GET  http://127.0.0.1:8001/
+         Endpoint raiz con información
+
+  MODELO IA:
+    GET  http://127.0.0.1:8001/model-info
+         Información del modelo EfficientNetV2-S
+
+  ANALISIS:
+    POST http://127.0.0.1:8001/analyze
+         Analizar imagen (enviar como multipart/form-data)
+         Parámetro: file (imagen PNG, JPEG, WebP)
+
+✓ DOCUMENTACION INTERACTIVA
+  
+  Swagger UI: http://127.0.0.1:8001/docs
+  ReDoc:      http://127.0.0.1:8001/redoc
+
+✓ MODELO DE IA CARGADO
+  
+  Modelo: EfficientNetV2-S
+  Clases: plant, dry_flower, resin, extract, processed
+  Dispositivo: CPU
+  Entrada: 224x224 píxeles
+  
+✓ EJEMPLOS DE USO
+
+  1. Probar salud:
+     curl http://127.0.0.1:8001/health
+  
+  2. Obtener info del modelo:
+     curl http://127.0.0.1:8001/model-info
+  
+  3. Analizar imagen:
+     curl -X POST -F "file=@imagen.jpg" \
+          http://127.0.0.1:8001/analyze
+
+✓ PRUEBAS COMPLETADAS
+  
+  ✓ Importaciones correctas
+  ✓ Modelo IA cargado
+  ✓ Motor de inferencia operativo
+  ✓ Endpoints accesibles
+  ✓ Servidor respondiendo
+
+════════════════════════════════════════════════════════════════════════
+
+PARA DETENER EL SERVIDOR: Presiona Ctrl+C
+
+════════════════════════════════════════════════════════════════════════

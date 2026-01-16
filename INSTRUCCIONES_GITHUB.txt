@@ -1,0 +1,179 @@
+================================================================================
+INSTRUCCIONES PARA SUBIR A GITHUB
+================================================================================
+
+OPCION 1: Desde PowerShell (Windows)
+================================================================================
+
+1. Instalar Git (si no lo tienes):
+   - Descarga desde: https://git-scm.com/download/win
+   - Instala con las opciones por defecto
+
+2. Configurar Git:
+   git config --global user.name "Tu Nombre"
+   git config --global user.email "tu@email.com"
+
+3. En el directorio del proyecto:
+   cd c:\Users\ilyas\.gemini\antigravity\scratch\phytolens\backend
+
+4. Inicializar repositorio (si no existe):
+   git init
+
+5. Agregar archivos:
+   git add .
+
+6. Crear commit:
+   git commit -m "PhytoLens: Sistema de IA con EfficientNetV2-S completado
+   
+   - Motor de IA con clasificación de 5 categorías
+   - API REST FastAPI con endpoints de análisis
+   - Soporte GPU/CPU automático
+   - Documentación Swagger/ReDoc incluida
+   - Servidor desplegado en puerto 8001"
+
+7. Conectar con GitHub:
+   git remote add origin https://github.com/TU_USUARIO/phytolens.git
+
+8. Subir código:
+   git branch -M main
+   git push -u origin main
+
+================================================================================
+OPCION 2: Desde VS Code
+================================================================================
+
+1. Abre el proyecto en VS Code
+2. Haz clic en "Source Control" en la barra lateral (icono de rama)
+3. Haz clic en "Initialize Repository"
+4. Escribe el mensaje de commit
+5. Haz clic en "✓ Commit"
+6. Haz clic en "Publish to GitHub"
+7. Sigue las instrucciones en pantalla
+
+================================================================================
+ESTRUCTURA DEL PROYECTO A SUBIR
+================================================================================
+
+phytolens/backend/
+├── app/
+│   ├── main.py                    # Aplicación FastAPI
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── api.py
+│   │   │   └── endpoints/
+│   │   │       └── scans.py       # Endpoints de análisis
+│   │   └── deps.py
+│   ├── services/
+│   │   └── inference.py           # Motor de IA
+│   ├── schemas/
+│   │   └── scan.py                # Esquemas Pydantic
+│   ├── models/
+│   │   ├── scan.py
+│   │   └── user.py
+│   ├── core/
+│   │   ├── config.py
+│   │   └── security.py
+│   └── db/
+│       ├── base_class.py
+│       └── session.py
+├── requirements.txt               # Dependencias principales
+├── requirements_ai.txt            # Dependencias de IA
+├── simple_server.py               # Servidor de prueba
+├── server_demo.py                 # Servidor con demostración
+├── test_ia_execution.py           # Pruebas de IA
+├── test_final.py                  # Pruebas finales
+├── test_client.py                 # Cliente de prueba
+└── README.md                       # Documentación
+
+================================================================================
+ARCHIVOS RECOMENDADOS A CREAR ANTES DE SUBIR
+================================================================================
+
+1. .gitignore:
+   __pycache__/
+   *.pyc
+   *.pyo
+   .venv/
+   .env
+   uploads/
+   *.db
+   .vscode/
+   .idea/
+   *.swp
+   *.swo
+   node_modules/
+
+2. README.md:
+   # PhytoLens - Sistema de IA para Clasificación de Plantas
+   
+   ## Descripción
+   Sistema de análisis de imágenes que utiliza EfficientNetV2-S para 
+   clasificar plantas en 5 categorías.
+   
+   ## Características
+   - Motor de IA con EfficientNetV2-S
+   - API REST FastAPI
+   - Soporte GPU/CPU automático
+   - Documentación Swagger incluida
+   
+   ## Instalación
+   pip install -r requirements.txt
+   pip install -r requirements_ai.txt
+   
+   ## Uso
+   python simple_server.py
+   
+   # Accede a http://localhost:8001/docs
+
+3. .env (ejemplo - NO subir contraseñas reales):
+   POSTGRES_SERVER=localhost
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=your_password
+   POSTGRES_DB=phytolens
+   SECRET_KEY=your_secret_key
+
+================================================================================
+COMANDO RÁPIDO TODO EN UNO
+================================================================================
+
+cd c:\Users\ilyas\.gemini\antigravity\scratch\phytolens\backend
+git init
+git add .
+git commit -m "PhytoLens: Sistema IA con EfficientNetV2-S"
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/phytolens.git
+git push -u origin main
+
+================================================================================
+VERIFICAR ESTADO DEL REPOSITORIO
+================================================================================
+
+git status                    # Ver archivos modificados
+git log                       # Ver historial de commits
+git diff                      # Ver cambios sin hacer commit
+git branch -a                 # Ver todas las ramas
+
+================================================================================
+ACTUALIZAR CAMBIOS POSTERIORES
+================================================================================
+
+git add .
+git commit -m "Descripcion de cambios"
+git push
+
+================================================================================
+CREAR UN .gitignore
+================================================================================
+
+En c:\Users\ilyas\.gemini\antigravity\scratch\phytolens\backend\
+
+Crear archivo .gitignore con:
+__pycache__/
+*.pyc
+.venv/
+.env
+uploads/
+*.db
+.DS_Store
+
+================================================================================
