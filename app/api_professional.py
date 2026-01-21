@@ -24,7 +24,40 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Importar motor de IA
-from app.services.inference import get_inference_engine
+try:
+    from app.services.inference import get_inference_engine
+except ImportError:
+    get_inference_engine = None
+
+# Importar servicios avanzados
+cache_manager = None
+explainability_engine = None
+edge_model = None
+
+try:
+    from app.services.cache_manager import PredictionCache
+    cache_manager = PredictionCache(
+        max_memory_items=1000,
+        enable_disk=True,
+        enable_redis=False
+    )
+except (ImportError, Exception) as e:
+    logger.warning(f"⚠️ Cache no disponible: {e}")
+    cache_manager = None
+
+try:
+    from app.services.explainability import ExplainabilityEngine
+    explainability_engine = None  # Se inicializa con modelo
+except (ImportError, Exception) as e:
+    logger.warning(f"⚠️ Explicabilidad no disponible: {e}")
+    explainability_engine = None
+
+try:
+    from app.services.inference_edge import VisionPlantEdgeModel
+    edge_model = None  # Se inicializa al startup
+except (ImportError, Exception) as e:
+    logger.warning(f"⚠️ Modelo edge no disponible: {e}")
+    edge_model = None
 
 # Constantes
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -42,16 +75,45 @@ cleanup_task = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestor del ciclo de vida de la aplicación"""
-    global inference_engine, cleanup_task
+    global inference_engine, cleanup_task, explainability_engine, edge_model
     
     # Startup
     logger.info("🚀 Iniciando VisionPlant...")
     try:
+        if get_inference_engine is None:
+            raise ImportError("get_inference_engine no disponible")
         inference_engine = get_inference_engine(use_tta=False)
-        logger.info("✓ Motor de IA cargado correctamente")
-    except Exception as e:
-        logger.error(f"✗ Error cargando motor de IA: {e}")
+        
+        # Inicializar motor de explicabilidad
+        if inference_engine:
+            try:
+                explainability_engine = ExplainabilityEngine(
+                    inference_engine.model,
+                    num_classes=5
+                )
+                logger.info("✓ Motor de explicabilidad cargado")
+            except Exception as e:
+                logger.warning(f"⚠️ No se pudo cargar explicabilidad: {e}")
+        
+        # Inicializar modelo edge
+        try:
+            edge_model = VisionPlantEdgeModel(num_classes=5, quantize=True)
+            logger.info("✓ Modelo edge cargado (cuantizado)")
+        except Exception as e:
+            logger.warning(f"⚠️ No se pudo cargar modelo edge: {e}")
+        
+        # Actualizar referencias en router avanzado
+        from app import api_advanced
+        api_advanced.cache_manager = cache_manager
+        api_advanced.explainability_engine = explainability_engine
+        api_advanced.edge_model = edge_model
+        
+    except ImportError as e:
+        logger.error(f"✗ Error importando dependencias: {e}")
         raise
+    
+    logger.info("✓ Motor de IA cargado correctamente")
+
     
     # Iniciar limpieza de archivos viejos
     async def cleanup_old_files():
@@ -430,13 +492,12 @@ app.openapi_tags = [
     }
 ]
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "api_professional:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=False,
-        workers=4,
-        log_level="info"
-    )
+# ============================================================================
+# INCLUIR ROUTERS AVANZADOS
+# ============================================================================
+
+from app import api_advanced
+app.include_router(api_advanced.router)
+
+logger.info("✓ Routers avanzados incluidos")
+

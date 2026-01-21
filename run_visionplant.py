@@ -7,6 +7,9 @@ App profesional de reconocimiento de plantas con IA avanzada
 import sys
 import os
 import logging
+import webbrowser
+import time
+import threading
 
 # Agregar ruta del proyecto
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -22,6 +25,41 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+def open_browser():
+    """Abrir Chrome después de que el servidor esté listo"""
+    # Esperar a que el servidor inicie
+    time.sleep(3)
+    
+    url = "http://localhost:8000"
+    logger.info(f"🌐 Abriendo {url} en Chrome...")
+    
+    try:
+        # Intentar abrir con Chrome específicamente
+        import subprocess
+        chrome_paths = [
+            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+            "C:\\Users\\%USERNAME%\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe",
+        ]
+        
+        chrome_found = False
+        for path in chrome_paths:
+            expanded_path = os.path.expandvars(path)
+            if os.path.exists(expanded_path):
+                subprocess.Popen([expanded_path, url])
+                chrome_found = True
+                break
+        
+        # Si Chrome no se encuentra, usar navegador por defecto
+        if not chrome_found:
+            logger.info("Chrome no encontrado, usando navegador por defecto...")
+            webbrowser.open(url)
+            
+    except Exception as e:
+        logger.warning(f"⚠️ No se pudo abrir el navegador automáticamente: {e}")
+        logger.info(f"Abre manualmente: {url}")
+
 
 def print_banner():
     """Mostrar banner de inicio"""
@@ -61,6 +99,13 @@ def main():
         logger.info("🚀 Iniciando servidor en http://0.0.0.0:8000")
         logger.info("📊 Documentación: http://localhost:8000/docs")
         logger.info("🎨 Interfaz: http://localhost:8000")
+        logger.info("")
+        
+        # Iniciar thread para abrir Chrome
+        browser_thread = threading.Thread(target=open_browser, daemon=True)
+        browser_thread.start()
+        
+        logger.info("✓ Thread del navegador iniciado")
         logger.info("")
         
         # Ejecutar servidor con configuración optimizada
