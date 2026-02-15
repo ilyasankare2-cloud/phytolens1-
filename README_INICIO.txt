@@ -330,6 +330,6 @@ SIGUIENTE ACCIÓN:
 
 Versión: 2.0 (Mejorada)
 Status: ✓ PRODUCCIÓN
-Última actualización: 2024
+Última actualización: 2026
 
 ═════════════════════════════════════════════════════════════════════════════════
