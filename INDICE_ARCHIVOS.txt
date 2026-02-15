@@ -363,6 +363,6 @@ La IA V2 está lista para:
 
 ═════════════════════════════════════════════════════════════════════════════════
 
-Última actualización: 2024
+Última actualización: 2026
 Versión: 2.0 (Mejorada)
 Estado: ✓ PRODUCCIÓN
