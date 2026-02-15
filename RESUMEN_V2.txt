@@ -360,7 +360,7 @@ PRÓXIMO PASO: Desplegar con python simple_server.py
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-Generado: 2024
+Generado: 2026
 Versión: 2.0 (Mejorada)
 Estado: ✓ COMPLETADO
 
