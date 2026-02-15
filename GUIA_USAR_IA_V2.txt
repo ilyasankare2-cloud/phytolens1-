@@ -290,5 +290,5 @@ Si necesita:
    - Explicabilidad: Agregar Grad-CAM
 
 Versión del documento: 2.0 (V2 Mejorada)
-Última actualización: 2024
+Última actualización: 2026
 ═════════════════════════════════════════════════════════════════
