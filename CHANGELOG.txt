@@ -253,19 +253,19 @@ PRUEBA 4: Throughput
 HISTÓRICO DE VERSIONES
 ════════════════════════════════════════════════════════════════════════════════
 
-v1.0 - 2024 (ORIGINAL)
+v1.0 - 2026 (ORIGINAL)
   - EfficientNetV2-S
   - Predicción básica
   - Precisión: ~65%
   - Status: DEPRECATED
 
-v1.5 - 2024 (BUG FIXES)
+v1.5 - 2026 (BUG FIXES)
   - Corrección de rutas API
   - Validación mejorada
   - Precisión: ~70%
   - Status: LEGACY
 
-v2.0 - 2024 (MEJORADA) ← ACTUAL
+v2.0 - 2026 (MEJORADA) ← ACTUAL
   - EfficientNetV2-M
   - TTA + Caché
   - Predicción extendida
